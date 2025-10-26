@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер Обратного Отсчета</title>
+    <!-- Подключение Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Установка шрифта Roboto (900 - самый жирный) --><style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap');
+        body {
+            /* Используем Roboto, как запрошено */
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Основной дисплей таймера (Дни:Часы:Минуты:Секунды) --><div class="text-center">
+        <!-- Цифры стали белыми (text-white) --><span id="timer-display" class="text-6xl sm:text-8xl md:text-[10rem] lg:text-[12rem] font-black text-white tracking-wider block transition-colors duration-500">
+            00:00:00:00
+        </span>
+        
+        <!-- Страшная надпись "আপুনি সাজু হোৱা নাই।" (Ты не готов/а.) - теперь белая и без мигания --><p class="text-2xl sm:text-3xl md:text-4xl font-bold mt-12 text-white tracking-widest uppercase shadow-lg">
+            আপুনি সাজু হোৱা নাই।
+        </p>
+    </div>
+
+    <!-- Сообщение об окончании (изначально скрыто) --><div id="expired-message" class="absolute inset-0 hidden flex items-center justify-center bg-black/90">
+        <!-- Сообщение об окончании адаптировано для темного фона --><p class="text-4xl md:text-6xl font-extrabold text-red-400 animate-pulse p-4 rounded-lg border-4 border-red-400 bg-red-900/70 shadow-xl">
+            ВРЕМЯ ИСТЕКЛО
+        </p>
+    </div>
+
+    <script>
+        // Целевая дата: 7 февраля 2026 года, 00:00:00 по местному времени
+        const targetDate = new Date('2026-02-07T00:00:00').getTime();
+
+        const SECOND = 1000;
+        const MINUTE = SECOND * 60;
+        const HOUR = MINUTE * 60;
+        const DAY = HOUR * 24;
+
+        const el = {
+            timerDisplay: document.getElementById('timer-display'),
+            expiredMessage: document.getElementById('expired-message')
+        };
+
+        // Функция для добавления ведущего нуля
+        const formatTime = (value) => String(value).padStart(2, '0');
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            let distance = targetDate - now;
+
+            if (distance < 0) {
+                // Таймер истек
+                clearInterval(timerInterval);
+                el.timerDisplay.textContent = '00:00:00:00';
+                el.expiredMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Расчет времени
+            const days = Math.floor(distance / DAY);
+            distance -= days * DAY;
+
+            const hours = Math.floor(distance / HOUR);
+            distance -= hours * HOUR;
+
+            const minutes = Math.floor(distance / MINUTE);
+            distance -= minutes * MINUTE;
+
+            const seconds = Math.floor(distance / SECOND);
+
+            // Форматирование в виде DD:HH:MM:SS
+            const formattedTime = 
+                formatTime(days) + ':' +
+                formatTime(hours) + ':' +
+                formatTime(minutes) + ':' +
+                formatTime(seconds);
+
+            // Обновление DOM
+            el.timerDisplay.textContent = formattedTime;
+        }
+
+        // Запуск таймера: немедленно и затем каждую секунду
+        const timerInterval = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Первый вызов для немедленного отображения
+    </script>
+</body>
+</html>
+
